@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VARGANITO'S BURGERS 🍔</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffe600;
+            text-align: center;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            width: 95%;
+            max-width: 800px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .burger-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .burger-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .burger-button img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .burger-button img:hover {
+            transform: scale(1.1);
+        }
+        .info-container {
+            border: 2px solid #ffcc00;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
+            background: #fff3cd;
+            width: 100%;
+        }
+        select, button {
+            margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .remove-button {
+            background: #dc3545;
+        }
+        .remove-button:hover {
+            background: #c82333;
+        }
+        h1 {
+            color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VARGANITO'S BURGERS 🍔</h1>
+        <div class="burger-buttons" id="hamburguesas"></div>
+        
+        <div id="info" class="info-container" style="display: none;">
+            <h2 id="burger-name"></h2>
+            <p><b>Stock:</b> <span id="burger-stock"></span></p>
+            <button onclick="modificarStock(1); reproducirAudio('agregarstock')">🍔 Agregar Stock</button>
+            <button class="remove-button" onclick="modificarStock(-1); reproducirAudio('quitarstock')">❌ Quitar Stock</button>
+            
+            <h3>Modificar Ingredientes 🍳</h3>
+            <select id="ingredientes" onchange="reproducirIngredienteSeleccionado()">
+                <option value="mayonesa">🥄 Mayonesa</option>
+                <option value="ketchup">🍅 Ketchup</option>
+                <option value="mostaza">🌭 Mostaza</option>
+                <option value="panceta">🥓 Panceta</option>
+                <option value="huevo">🍳 Huevo</option>
+            </select>
+            <button onclick="agregarIngrediente()">✅ Agregar</button>
+            <button class="remove-button" onclick="quitarIngrediente()">❌ Quitar</button>
+            <br>
+            <button onclick="comprarBurger()">🛒 Comprar Hamburguesa</button>
+        </div>
+    </div>
+
+    <script>
+        const burgers = [
+            { name: "Simple", img: "imagenes/simple.png" }, 
+            { name: "Especial", img: "imagenes/original.webp" },
+            { name: "Cheddar", img: "imagenes/cheddar.png" },
+            { name: "Super", img: "imagenes/super hamburguesa.png" }
+        ];
+
+        const stock = { Simple: 10, Especial: 8, Cheddar: 5, Super: 6 };
+        let selectedBurger = null;
+
+        function reproducirAudio(nombre) {
+            const audio = new Audio(`audios/${nombre}.mp3.mp3`);
+            audio.play().catch(e => console.error("No se pudo reproducir el audio:", e));
+        }
+
+        function cargarBotones() {
+            const contenedor = document.getElementById("hamburguesas");
+            contenedor.innerHTML = "";
+            burgers.forEach(burger => {
+                contenedor.innerHTML += `
+                    <button class="burger-button" onclick="mostrarInfo('${burger.name}'); reproducirAudio('${burger.name.toLowerCase()}')">
+                        <img src="${burger.img}" alt="${burger.name}" title="Hamburguesa ${burger.name}">
+                    </button>
+                `;
+            });
+        }
+
+        function mostrarInfo(burger) {
+            selectedBurger = burger;
+            document.getElementById("burger-name").innerText = burger;
+            document.getElementById("burger-stock").innerText = stock[burger] || 0;
+            document.getElementById("info").style.display = "block";
+        }
+
+        function modificarStock(cantidad) {
+            if (selectedBurger) {
+                stock[selectedBurger] = (stock[selectedBurger] || 0) + cantidad;
+                if (stock[selectedBurger] < 0) stock[selectedBurger] = 0;
+                document.getElementById("burger-stock").innerText = stock[selectedBurger];
+            }
+        }
+
+        function agregarIngrediente() {
+            const ingrediente = document.getElementById("ingredientes").value;
+            alert(`Se agregó: ${ingrediente} en ${selectedBurger}`);
+            reproducirAudio(`${ingrediente}seleccionada`);
+        }
+
+        function quitarIngrediente() {
+            const ingrediente = document.getElementById("ingredientes").value;
+            alert(`Se quitó: ${ingrediente} en ${selectedBurger}`);
+            reproducirAudio(`${ingrediente}quitada`);
+        }
+
+        function comprarBurger() {
+            if (selectedBurger && stock[selectedBurger] > 0) {
+                stock[selectedBurger]--;
+                document.getElementById("burger-stock").innerText = stock[selectedBurger];
+                alert(`Has comprado una ${selectedBurger}`);
+                reproducirAudio('comprarhamburguesa');
+            } else {
+                alert("No hay stock disponible");
+            }
+        }
+
+        function reproducirIngredienteSeleccionado() {
+            const ingrediente = document.getElementById("ingredientes").value;
+            reproducirAudio(`${ingrediente}seleccionada`);
+        }
+
+        cargarBotones();
+    </script>
+</body>
+</html>
